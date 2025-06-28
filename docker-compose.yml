@@ -1,37 +1,30 @@
 
 services:
-  # --- SERVIÇO DO BANCO DE DADOS ---
   db:
-    image: postgres:14-alpine
-    container_name: cafeteria_db
-    # Variáveis para criar o banco de dados, usuário e senha
+    image: postgres:14
+    container_name: cafeteria_db # Nome do container, pode ser o que você preferir
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: cafeteria_db
     ports:
-      # Expõe a porta do PostgreSQL para podermos acessá-lo de fora, se necessário
       - "5432:5432"
     volumes:
-      # Garante que os dados do banco não sejam perdidos ao reiniciar o container
       - pgdata:/var/lib/postgresql/data
 
-  # --- SERVIÇO DO BACKEND  ---
   backend:
     build: ./backend
     container_name: cafeteria_backend
     ports:
       - "8080:8080"
-    # [ADIÇÃO] Garante que o backend só inicie DEPOIS que o banco de dados estiver pronto
     depends_on:
       - db
-    # [ADIÇÃO] Passa as credenciais para o Spring Boot se conectar ao banco
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/cafeteria_db
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/cafeteria
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: admin
 
-  # --- SERVIÇO DO FRONTEND (Sem alterações, já estava correto) ---
   frontend:
     build: ./frontend
     container_name: cafeteria_frontend
@@ -40,7 +33,5 @@ services:
     depends_on:
       - backend
 
-# --- SEÇÃO DE VOLUMES (Adicionada) ---
-# Declara o volume que será usado pelo serviço 'db' para persistir os dados
 volumes:
   pgdata:
