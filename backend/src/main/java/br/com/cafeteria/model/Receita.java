@@ -22,7 +22,7 @@ public class Receita {
 
     @ManyToMany(fetch = FetchType.EAGER) // Carrega os ingredientes junto com a receita
     @JoinTable(
-            name = "receita_ingrediente", // Nome da tabela de junção
+            name = "receita_ingrediente", // tabela de junção
             joinColumns = @JoinColumn(name = "receita_id"),
             inverseJoinColumns = @JoinColumn(name = "ingrediente_id")
     )

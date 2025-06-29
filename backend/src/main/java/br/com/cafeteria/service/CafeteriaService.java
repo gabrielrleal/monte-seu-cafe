@@ -15,12 +15,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class CafeteriaService {
 
-    // Injeta os valores do application.properties para as regras de negócio
     @Value("${cafeteria.regras.ingredientes-base.min}")
     private int minIngredientesBase;
 
@@ -101,6 +99,6 @@ public class CafeteriaService {
             }
         }
 
-        return "Café Personalizado";
+        return "Café Personalizado (sujeito a verificação)";
     }
 }

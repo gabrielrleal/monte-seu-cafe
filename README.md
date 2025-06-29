@@ -1,41 +1,161 @@
-# Processo seletivo - QA
+# Projeto Cafeteria - Desafio Prático QA
 
-Bem vindo, candidato. 
+[cite_start]Este repositório contém a solução para o desafio prático do Processo Seletivo **01517/2025 - Analista de Qualidade Software - Pleno**[cite: 4]. [cite_start]O projeto consiste em uma aplicação web de autoatendimento que permite a clientes de uma cafeteria personalizarem suas bebidas, selecionando ingredientes e recebendo um resumo dinâmico da sua criação[cite: 49].
 
-Estamos felizes que você esteja participando do processo seletivo para a vaga de QA do Senai - Soluções Digitais.
+---
 
-A prova deverá utilizar as seguintes tecnologias:
+## 1. Instruções de Setup e Execução (RQNF10)
 
-- Uma das seguintes linguagens de programação: Java, PHP ou Javascript
-- Banco de dados PostgreSQL
-- Testes unitários
-- Testes de API (Robot Framework ou Cypress)
-- Testes E2E (Robot Framework ou Cypress)
-- Docker
-- GIT
+**Pré-requisitos:**
+- Git
+- Docker e Docker Compose
 
-Na etapa da entrevista deverá ser apresentada a aplicação em funcionamento.
+**Passos para Execução:**
 
-## Instruções para a execução da prova
+1.  Clone este repositório para sua máquina local:
+    ```bash
+    git clone [https://github.com/SENAI-SD/qa-pleno-01517-2025-087.420.254-00.git](https://github.com/SENAI-SD/qa-pleno-01517-2025-087.420.254-00.git)
+    ```
+2.  Navegue até a pasta raiz do projeto clonado.
 
-***O documento com os requisitos do que precisa ser desenvolvido será enviado por e-mail no horário previsto em edital.***
+3.  Execute o seguinte comando para construir as imagens e iniciar todos os containers:
+    ```bash
+    docker-compose up --build
+    ```
+4.  Aguarde até que os logs dos três serviços (`db`, `backend`, `frontend`) se estabilizem e indiquem que foram iniciados com sucesso.
 
-A prova será uma aplicação web dividida em backend e frontend (conforme as tecnologias listadas acima).
+5.  Acesse a aplicação no seu navegador:
+    * **Frontend:** [http://localhost:3000](http://localhost:3000)
 
-É de livre escolha do candidato quais frameworks e servidores serão utilizados, desde que seja uma aplicação web.
+---
 
-***O Banco utilizado na prova deverá ser PostgreSQL.***
+## 2. Tecnologias Utilizadas
 
-Esse repositório possui apenas esse documento (Readme.md) com as instruções da prova. No entanto, **todo desenvolvimento deve ser commitado nesse repositório** até a data citada no email, enviado por nossa equipe.
+- **Backend:** Java 17 com Spring Boot
+- **Frontend:** TypeScript com React (Vite)
+- [cite_start]**Banco de Dados:** PostgreSQL [cite: 30]
+- [cite_start]**Migrations:** Flyway [cite: 36]
+- [cite_start]**Testes Unitários (Backend):** JUnit 5 e Mockito [cite: 18]
+- [cite_start]**Testes Automatizados (E2E & API):** Playwright [cite: 19]
+- [cite_start]**Containerização:** Docker e Docker Compose [cite: 31]
 
-Commite nesse repositório o script utilizado na criação do banco de dados (se aplicável).
+---
 
-Por fim, altere esse arquivo com as instruções de como poderemos testar o seu código (quais bibliotecas usar, qual servidor, etc.) abaixo.
+## 3. Plano de Testes (RQNF14, RQNF15, RQNF16)
 
-## Informações extras
+[cite_start]A estratégia de testes adotada para o projeto foi a de **Múltiplas Camadas (Pirâmide de Testes)**, com o objetivo de garantir a qualidade em diferentes níveis da aplicação com o melhor custo-benefício de tempo e esforço[cite: 43].
 
-- Descreva ao final deste documento (Readme.md) o detalhamento de funcionalidades implementadas, sejam elas já descritas na modelagem e/ou extras.
-- Detalhar também as funcionalidades que não conseguiu implementar e o motivo.
-- Caso tenha adicionado novas bibliotecas ou frameworks, descreva quais foram e o porquê desta agregação.
+**Prioridades a Curto Prazo:**
+A prioridade foi garantir 100% de cobertura das regras de negócio críticas através de testes de unidade e validar o fluxo principal do usuário com um teste E2E.
 
-(Escreva aqui as instruções para que possamos corrigir sua prova, bem como qualquer outra observação sobre a prova que achar pertinente compartilhar)
+### 3.1. [cite_start]Testes de Unidade (Caixa-Branca) [cite: 44]
+* **Ferramentas:** JUnit 5 e Mockito.
+* **Objetivo:** Validar a lógica de negócio na classe `CafeteriaService` de forma isolada, sem dependência do banco de dados. Esta é a base da pirâmide, garantindo que os cálculos e regras estão corretos.
+* **Cenários Cobertos:** Validação dos limites de ingredientes, identificação de receitas clássicas, identificação de cafés personalizados e geração do nome final da bebida.
+
+### 3.2. [cite_start]Testes de API (Caixa-Preta) [cite: 44]
+* **Ferramenta:** Playwright.
+* **Objetivo:** Validar o "contrato" da API do backend, garantindo que os endpoints respondem com o status HTTP correto e com a estrutura de dados (schema) esperada em formato JSON.
+* **Cenários Cobertos:** Teste do endpoint `GET /api/cafeteria/ingredientes` para verificar a estrutura da resposta.
+
+### 3.3. [cite_start]Testes End-to-End (E2E) (Caixa-Preta) [cite: 44]
+* **Ferramenta:** Playwright.
+* **Objetivo:** Simular a jornada completa de um usuário na interface gráfica, validando a integração entre o frontend, backend e banco de dados.
+* **Cenários Cobertos:** Fluxo completo de montagem de um café, desde a seleção da base, adição de extras, confirmação de etapas, até a visualização da tela de sucesso.
+### 3.4. Testes de Acessibilidade (Verificação Adicional)
+
+Como iniciativa extra para garantir a `Qualidade da usabilidade para o usuário final`, foi realizada uma verificação automatizada de acessibilidade na interface do frontend utilizando a ferramenta **Accessibility Insights for Web**.
+
+* **Objetivo:** Identificar problemas comuns de acessibilidade que podem dificultar o uso da aplicação por pessoas com deficiências visuais.
+* **Resultado Principal:** A ferramenta identificou **8 instâncias de falha de contraste de cores**, violando as diretrizes WCAG 2 AA. O principal problema encontrado foi o contraste entre o texto branco dos botões selecionados (`#FFFFFF`) e o fundo azul claro (`#3498db`), que pode ser de difícil leitura para usuários com baixa visão.
+* **Ação Recomendada (Melhoria Futura):** Para uma próxima versão, recomenda-se ajustar a paleta de cores da aplicação, escurecendo o tom de azul ou alterando a cor do texto para garantir um nível de contraste que atenda aos padrões internacionais de acessibilidade.
+---
+
+## 4. Especificações Gherkin (RQNF13)
+
+Abaixo estão exemplos de especificações de comportamento para as funcionalidades centrais.
+
+**Funcionalidade:** Montagem de Café
+
+**Cenário 1: Cliente monta um café clássico com adicionais**
+```gherkin
+Dado que o cliente está na tela de montagem de café
+Quando ele seleciona os ingredientes base "Expresso" e "Leite"
+E clica em "Confirmar Base e ir para Adicionais"
+E então seleciona o adicional "Caramelo"
+E clica em "Revisar Pedido"
+Então o resumo deve exibir o nome "Latte com Caramelo"
+```
+
+**Cenário 2: Cliente tenta exceder o limite de ingredientes base**
+```gherkin
+Dado que o cliente está na tela de montagem de café
+E ele já selecionou "Expresso", "Leite" e "Chocolate"
+Quando ele tenta selecionar o ingrediente base "Sorvete"
+Então o sistema deve exibir a mensagem de erro "Máximo de 3 ingredientes base."
+E a seleção de "Sorvete" não deve ser concluída
+```
+
+---
+
+## 5. Segurança de Acesso ao Backend (RQNF4)
+
+[cite_start]Para atender ao requisito de bloquear o acesso público direto ao backend, a arquitetura foi desenhada de forma que apenas o container do frontend possa se comunicar com o container do backend[cite: 33].
+
+Isto foi alcançado através da rede interna privada criada pelo Docker Compose. O container do `backend` não tem sua porta `8080` publicada diretamente. Em vez disso, o container do `frontend`, que utiliza um servidor web Nginx, atua como um **reverse proxy**. Qualquer requisição do usuário para a API (ex: `/api/...`) é primeiro recebida pelo Nginx, que então a encaminha internamente para o serviço `backend`, protegendo-o de exposição direta.
+
+---
+
+## 6. Autoavaliação de Código e Possíveis Melhorias (RQNF11)
+
+### Pontos Fortes
+* **Arquitetura Robusta:** A aplicação foi estruturada com uma clara separação de responsabilidades no backend (camadas de Controller, Service, Repository) e containerizada com Docker, garantindo portabilidade e um ambiente de execução consistente.
+* [cite_start]**Qualidade via Testes:** A estratégia de testes em múltiplas camadas (Unitário, API, E2E) assegura a qualidade da lógica de negócio isolada e da integração do sistema como um todo[cite: 22].
+
+### Pontos a Melhorar e Próximos Passos
+* **Componentização do Frontend:** Para um projeto real e de longo prazo, o componente `App.tsx` seria refatorado em componentes de UI menores e mais especializados (`<Stepper/>`, `<IngredientSelector/>`, `<SummaryCard/>`) para aumentar ainda mais a legibilidade e a reutilização de código. Optei por manter a estrutura atual para focar na entrega dos requisitos funcionais e de teste dentro do prazo.
+* **Modelagem de Receitas:** A implementação atual com as receitas no banco de dados é flexível. O próximo passo seria criar uma interface de administração para que um gerente de produto pudesse adicionar ou alterar receitas sem a necessidade de novas migrations ou deploy do código.
+* **Tratamento de Erros:** O tratamento de erros no backend poderia ser aprimorado com um `@ControllerAdvice` global para capturar exceções de forma centralizada e retornar respostas de erro padronizadas.
+
+---
+
+
+## Relatório de Bug Manual (RQNF17)
+
+Durante a revisão do código-fonte e testes funcionais manuais, foi identificado o seguinte bug na lógica de validação do frontend:
+
+* **Título:** O código para exibir a mensagem de erro de limite de ingredientes é inalcançável (código morto).
+
+* **Análise da Causa Raiz:**
+    A interface do usuário impede proativamente que o cliente selecione mais de 3 ingredientes base (ou 2 adicionais) ao desabilitar os botões restantes com a propriedade `disabled` do React. A lógica é:
+    `disabled={!selectedBaseIds.has(ing.id) && selectedBaseIds.size >= 3}`
+    
+    No entanto, a função `handleSelectBase` ainda contém um bloco de código `else` projetado para lidar com a tentativa de selecionar um quarto ingrediente e exibir uma mensagem de erro:
+    ```javascript
+    else { 
+        setError('Máximo de 3 ingredientes base.'); 
+        setTimeout(() => setError(''), 3000); 
+    }
+    ```
+    Como o botão já está desabilitado, o evento `onClick` que chama `handleSelectBase` nunca pode ser disparado em uma condição que ativaria este bloco `else`.
+
+* **Resultado Esperado:**
+    Quando o usuário tenta uma ação inválida (como clicar em um quarto ingrediente), um feedback de erro claro deveria ser fornecido.
+
+* **Resultado Obtido:**
+    A ação inválida é corretamente prevenida (o que é bom), mas o código específico para o feedback de erro nunca é executado, tornando-o um "código morto". Isso indica uma inconsistência entre a lógica de prevenção da UI e a lógica de tratamento de erro.
+
+* **Sugestão de Correção:**
+    Remover o bloco `else` inalcançável do código para limpá-lo, ou, alternativamente, remover a lógica de `disabled` dos botões e confiar apenas no tratamento de erro dentro da função `handleSelectBase` para fornecer o feedback ao usuário, garantindo que a mensagem de erro seja de fato exibida.
+
+
+---
+
+## 8. Requisitos Não Atendidos (RQNF18)
+
+Todos os requisitos **indispensáveis** do desafio foram atendidos.
+
+Os seguintes requisitos, marcados como opcional ou diferencial no documento, não foram implementados para priorizar a qualidade da entrega e a cobertura de testes dos itens obrigatórios dentro do prazo estipulado:
+
+* [cite_start]**RN005.4 (Opcional):** Cálculo e exibição do preço total do café[cite: 79].
+* [cite_start]**RQNF12 (Diferencial):** Análise estática de código e geração de relatório com a ferramenta SonarQube[cite: 41].
