@@ -1,4 +1,4 @@
-
+# Estágio 1: Build com Node.js
 FROM node:20-alpine as build
 WORKDIR /app
 
@@ -10,9 +10,13 @@ COPY . .
 
 RUN npm run build
 
+# Estágio 2: Servir com Nginx
 FROM nginx:alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
+
+# [LINHA ADICIONADA] Copia o nosso arquivo de configuração para o Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

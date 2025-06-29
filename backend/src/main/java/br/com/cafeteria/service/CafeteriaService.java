@@ -45,7 +45,6 @@ public class CafeteriaService {
     }
 
     public CafeFinalResponse montarCafe(MontarCafeRequest request) {
-        // Validação das regras de negócio usando os valores injetados
         if (request.idsIngredientesBase() == null || request.idsIngredientesBase().size() < minIngredientesBase || request.idsIngredientesBase().size() > maxIngredientesBase) {
             throw new IllegalArgumentException("A seleção de ingredientes base deve conter de " + minIngredientesBase + " a " + maxIngredientesBase + " itens.");
         }
@@ -62,22 +61,27 @@ public class CafeteriaService {
             throw new IllegalArgumentException("Um ou mais IDs de ingredientes base não foram encontrados.");
         }
 
-        // Lógica de identificação de receita
         String nomeBase = identificarSaborClassico(ingredientesBase);
 
-        // Lógica para gerar nome final e composição
-        List<String> nomesIngredientesAdicionais = ingredientesAdicionais.stream().map(Ingrediente::getNome).collect(Collectors.toList());
+
+
+        List<String> nomesAdicionais = ingredientesAdicionais.stream()
+                .map(Ingrediente::getNome)
+                .sorted()
+                .collect(Collectors.toList());
+
         String nomeFinal = nomeBase;
-        if (!nomesIngredientesAdicionais.isEmpty()) {
-            nomeFinal += " com " + String.join(" e ", nomesIngredientesAdicionais);
+        if (!nomesAdicionais.isEmpty()) {
+            nomeFinal += " com " + String.join(" e ", nomesAdicionais);
         }
 
-        List<String> composicaoFinal = Stream.concat(
-                ingredientesBase.stream().map(Ingrediente::getNome),
-                ingredientesAdicionais.stream().map(Ingrediente::getNome)
-        ).sorted().collect(Collectors.toList());
+        List<String> nomesBase = ingredientesBase.stream()
+                .map(Ingrediente::getNome)
+                .sorted()
+                .collect(Collectors.toList());
 
-        return new CafeFinalResponse(nomeFinal, composicaoFinal);
+
+        return new CafeFinalResponse(nomeFinal, nomesBase, nomesAdicionais);
     }
 
     private String identificarSaborClassico(List<Ingrediente> ingredientesBase) {
