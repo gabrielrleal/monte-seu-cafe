@@ -1,6 +1,6 @@
 # Projeto Cafeteria - Desafio Prático QA
 
-[cite_start]Este repositório contém a solução para o desafio prático do Processo Seletivo **01517/2025 - Analista de Qualidade Software - Pleno**[cite: 4]. [cite_start]O projeto consiste em uma aplicação web de autoatendimento que permite a clientes de uma cafeteria personalizarem suas bebidas, selecionando ingredientes e recebendo um resumo dinâmico da sua criação[cite: 49].
+Este repositório contém a solução para o desafio prático do Processo Seletivo **01517/2025 - Analista de Qualidade Software - Pleno**: O projeto consiste em uma aplicação web de autoatendimento que permite a clientes de uma cafeteria personalizarem suas bebidas, selecionando ingredientes e recebendo um resumo dinâmico da sua criação
 
 ---
 
@@ -14,7 +14,7 @@
 
 1.  Clone este repositório para sua máquina local:
     ```bash
-    git clone [https://github.com/SENAI-SD/qa-pleno-01517-2025-087.420.254-00.git](https://github.com/SENAI-SD/qa-pleno-01517-2025-087.420.254-00.git)
+    git clone https://github.com/SENAI-SD/qa-pleno-01517-2025-087.420.254-00.git
     ```
 2.  Navegue até a pasta raiz do projeto clonado.
 
@@ -33,32 +33,32 @@
 
 - **Backend:** Java 17 com Spring Boot
 - **Frontend:** TypeScript com React (Vite)
-- [cite_start]**Banco de Dados:** PostgreSQL [cite: 30]
-- [cite_start]**Migrations:** Flyway [cite: 36]
-- [cite_start]**Testes Unitários (Backend):** JUnit 5 e Mockito [cite: 18]
-- [cite_start]**Testes Automatizados (E2E & API):** Playwright [cite: 19]
-- [cite_start]**Containerização:** Docker e Docker Compose [cite: 31]
+- **Banco de Dados:** PostgreSQL 
+- **Migrations:** Flyway 
+- **Testes Unitários (Backend):** JUnit 5 e Mockito 
+- **Testes Automatizados (E2E & API):** Playwright 
+- **Containerização:** Docker e Docker Compose 
 
 ---
 
 ## 3. Plano de Testes (RQNF14, RQNF15, RQNF16)
 
-[cite_start]A estratégia de testes adotada para o projeto foi a de **Múltiplas Camadas (Pirâmide de Testes)**, com o objetivo de garantir a qualidade em diferentes níveis da aplicação com o melhor custo-benefício de tempo e esforço[cite: 43].
+A estratégia de testes adotada para o projeto foi a de **Múltiplas Camadas (Pirâmide de Testes)**, com o objetivo de garantir a qualidade em diferentes níveis da aplicação com o melhor custo-benefício de tempo e esforço.
 
 **Prioridades a Curto Prazo:**
 A prioridade foi garantir 100% de cobertura das regras de negócio críticas através de testes de unidade e validar o fluxo principal do usuário com um teste E2E.
 
-### 3.1. [cite_start]Testes de Unidade (Caixa-Branca) [cite: 44]
+### 3.1. Testes de Unidade (Caixa-Branca) 
 * **Ferramentas:** JUnit 5 e Mockito.
 * **Objetivo:** Validar a lógica de negócio na classe `CafeteriaService` de forma isolada, sem dependência do banco de dados. Esta é a base da pirâmide, garantindo que os cálculos e regras estão corretos.
 * **Cenários Cobertos:** Validação dos limites de ingredientes, identificação de receitas clássicas, identificação de cafés personalizados e geração do nome final da bebida.
 
-### 3.2. [cite_start]Testes de API (Caixa-Preta) [cite: 44]
+### 3.2. Testes de API (Caixa-Preta) 
 * **Ferramenta:** Playwright.
 * **Objetivo:** Validar o "contrato" da API do backend, garantindo que os endpoints respondem com o status HTTP correto e com a estrutura de dados (schema) esperada em formato JSON.
 * **Cenários Cobertos:** Teste do endpoint `GET /api/cafeteria/ingredientes` para verificar a estrutura da resposta.
 
-### 3.3. [cite_start]Testes End-to-End (E2E) (Caixa-Preta) [cite: 44]
+### 3.3. Testes End-to-End (E2E) (Caixa-Preta) 
 * **Ferramenta:** Playwright.
 * **Objetivo:** Simular a jornada completa de um usuário na interface gráfica, validando a integração entre o frontend, backend e banco de dados.
 * **Cenários Cobertos:** Fluxo completo de montagem de um café, desde a seleção da base, adição de extras, confirmação de etapas, até a visualização da tela de sucesso.
@@ -100,7 +100,7 @@ E a seleção de "Sorvete" não deve ser concluída
 
 ## 5. Segurança de Acesso ao Backend (RQNF4)
 
-[cite_start]Para atender ao requisito de bloquear o acesso público direto ao backend, a arquitetura foi desenhada de forma que apenas o container do frontend possa se comunicar com o container do backend[cite: 33].
+Para atender ao requisito de bloquear o acesso público direto ao backend, a arquitetura foi desenhada de forma que apenas o container do frontend possa se comunicar com o container do backend.
 
 Isto foi alcançado através da rede interna privada criada pelo Docker Compose. O container do `backend` não tem sua porta `8080` publicada diretamente. Em vez disso, o container do `frontend`, que utiliza um servidor web Nginx, atua como um **reverse proxy**. Qualquer requisição do usuário para a API (ex: `/api/...`) é primeiro recebida pelo Nginx, que então a encaminha internamente para o serviço `backend`, protegendo-o de exposição direta.
 
@@ -110,7 +110,7 @@ Isto foi alcançado através da rede interna privada criada pelo Docker Compose.
 
 ### Pontos Fortes
 * **Arquitetura Robusta:** A aplicação foi estruturada com uma clara separação de responsabilidades no backend (camadas de Controller, Service, Repository) e containerizada com Docker, garantindo portabilidade e um ambiente de execução consistente.
-* [cite_start]**Qualidade via Testes:** A estratégia de testes em múltiplas camadas (Unitário, API, E2E) assegura a qualidade da lógica de negócio isolada e da integração do sistema como um todo[cite: 22].
+* **Qualidade via Testes:** A estratégia de testes em múltiplas camadas (Unitário, API, E2E) assegura a qualidade da lógica de negócio isolada e da integração do sistema como um todo.
 
 ### Pontos a Melhorar e Próximos Passos
 * **Componentização do Frontend:** Para um projeto real e de longo prazo, o componente `App.tsx` seria refatorado em componentes de UI menores e mais especializados (`<Stepper/>`, `<IngredientSelector/>`, `<SummaryCard/>`) para aumentar ainda mais a legibilidade e a reutilização de código. Optei por manter a estrutura atual para focar na entrega dos requisitos funcionais e de teste dentro do prazo.
@@ -157,5 +157,5 @@ Todos os requisitos **indispensáveis** do desafio foram atendidos.
 
 Os seguintes requisitos, marcados como opcional ou diferencial no documento, não foram implementados para priorizar a qualidade da entrega e a cobertura de testes dos itens obrigatórios dentro do prazo estipulado:
 
-* [cite_start]**RN005.4 (Opcional):** Cálculo e exibição do preço total do café[cite: 79].
-* [cite_start]**RQNF12 (Diferencial):** Análise estática de código e geração de relatório com a ferramenta SonarQube[cite: 41].
+* **RN005.4 (Opcional):** Cálculo e exibição do preço total do café.
+* **RQNF12 (Diferencial):** Análise estática de código e geração de relatório com a ferramenta SonarQube.
