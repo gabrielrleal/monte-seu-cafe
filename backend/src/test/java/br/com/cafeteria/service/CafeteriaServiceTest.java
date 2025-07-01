@@ -102,7 +102,7 @@ class CafeteriaServiceTest {
     }
 
     @Test
-    @DisplayName("Deve retornar 'Café Personalizado' quando a combinação de base não for clássica")
+    @DisplayName("Deve retornar 'Café Personalizado (sujeito a verificação)' quando a combinação de base não for clássica")
     void deveRetornarCafePersonalizadoQuandoCombinacaoNaoForClassica() {
         MontarCafeRequest request = new MontarCafeRequest(List.of(3L, 5L), Collections.emptyList());
 
@@ -122,7 +122,7 @@ class CafeteriaServiceTest {
         CafeFinalResponse response = cafeteriaService.montarCafe(request);
 
         assertNotNull(response);
-        assertEquals("Café Personalizado", response.nomeFinal());
+        assertEquals("Café Personalizado (sujeito a verificação)", response.nomeFinal());
     }
 
     @Test
@@ -155,5 +155,67 @@ class CafeteriaServiceTest {
         assertTrue(response.ingredientesAdicionais().contains("Canela"));
     }
 
+    @Test
+    @DisplayName("Deve lançar exceção se algum ingrediente base não for encontrado")
+    void deveLancarExcecaoSeIngredienteBaseNaoEncontrado() {
+        MontarCafeRequest request = new MontarCafeRequest(List.of(1L, 2L), Collections.emptyList());
+
+        Ingrediente expresso = new Ingrediente();
+        expresso.setId(1L);
+        expresso.setNome("Expresso");
+
+        // Só retorna 1 ingrediente, mas o request pede 2
+        when(ingredienteRepository.findAllByIdIn(List.of(1L, 2L))).thenReturn(List.of(expresso));
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> cafeteriaService.montarCafe(request)
+        );
+
+        assertEquals("Um ou mais IDs de ingredientes base não foram encontrados.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Deve montar café corretamente quando ingredientes adicionais são nulos")
+    void deveMontarCafeQuandoAdicionaisSaoNulos() {
+        MontarCafeRequest request = new MontarCafeRequest(List.of(1L, 2L), null);
+
+        Ingrediente expresso = new Ingrediente();
+        expresso.setId(1L);
+        expresso.setNome("Expresso");
+
+        Ingrediente leite = new Ingrediente();
+        leite.setId(2L);
+        leite.setNome("Leite");
+
+        List<Ingrediente> ingredientesBase = List.of(expresso, leite);
+
+        Receita receitaLatte = new Receita();
+        receitaLatte.setNome("Latte");
+        receitaLatte.setIngredientes(Set.of(expresso, leite));
+
+        when(ingredienteRepository.findAllByIdIn(List.of(1L, 2L))).thenReturn(ingredientesBase);
+        when(receitaRepository.findAll()).thenReturn(List.of(receitaLatte));
+
+        CafeFinalResponse response = cafeteriaService.montarCafe(request);
+
+        assertNotNull(response);
+        assertEquals("Latte", response.nomeFinal());
+        assertTrue(response.ingredientesBase().containsAll(List.of("Expresso", "Leite")));
+        assertTrue(response.ingredientesAdicionais().isEmpty());
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção se ingredientes base forem nulos")
+    void deveLancarExcecaoSeIngredientesBaseNulos() {
+        MontarCafeRequest request = new MontarCafeRequest(null, Collections.emptyList());
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> cafeteriaService.montarCafe(request)
+        );
+
+        assertEquals("A seleção de ingredientes base deve conter de 1 a 3 itens.", exception.getMessage());
+    }
 
 }
