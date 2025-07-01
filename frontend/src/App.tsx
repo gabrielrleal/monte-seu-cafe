@@ -1,84 +1,31 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { type Etapa } from "./tipos";
+import { useIngredientes } from "./hooks/useIngredientes";
+import { useMontarCafe } from "./hooks/useMontarCafe";
 import "./App.css";
-
-// --- INTERFACES E TIPOS ---
-interface IngredienteDTO {
-  id: number;
-  nome: string;
-  tipo: "BASE" | "ADICIONAL";
-}
-interface CafeFinalResponse {
-  nomeFinal: string;
-  ingredientesBase: string[];
-  ingredientesAdicionais: string[];
-}
-type Etapa = "BASE" | "ADICIONAIS" | "RESUMO" | "SUCESSO";
 
 function App() {
   // --- ESTADOS DA APLICAÇÃO ---
   const [etapa, setEtapa] = useState<Etapa>("BASE");
-  const [ingredientes, setIngredientes] = useState<IngredienteDTO[]>([]);
-  const [selectedBaseIds, setSelectedBaseIds] = useState<Set<number>>(
-    new Set()
-  );
-  const [selectedAdicionalIds, setSelectedAdicionalIds] = useState<Set<number>>(
-    new Set()
-  );
-  const [cafeFinal, setCafeFinal] = useState<CafeFinalResponse | null>(null);
+  const [selectedBaseIds, setSelectedBaseIds] = useState<Set<number>>(new Set());
+  const [selectedAdicionalIds, setSelectedAdicionalIds] = useState<Set<number>>(new Set());
+
+  // --- HOOKS DE DADOS ---
+  const { ingredientes } = useIngredientes();
+  const { cafeFinal, isLoading, montarCafe } = useMontarCafe();
   const [error, setError] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // --- DICIONÁRIO DE TEXTOS GUIADOS ---
   const textosDeEtapa = {
     BASE: "Passo 1 de 3: Selecione de 1 a 3 ingredientes para a base do seu café.",
-    ADICIONAIS:
-      "Passo 2 de 3: Adicione até 2 ingredientes extras para personalizar.",
+    ADICIONAIS: "Passo 2 de 3: Adicione até 2 ingredientes extras para personalizar.",
     RESUMO: "Passo 3 de 3: Revise e confirme seu pedido especial!",
     SUCESSO: "Seu pedido foi realizado! Obrigado!",
   };
 
-  // --- EFEITO PARA BUSCAR INGREDIENTES ---
+  // --- EFEITO PARA MONTAR CAFÉ SEMPRE QUE SELEÇÃO MUDA ---
   useEffect(() => {
-    fetch("/api/cafeteria/ingredientes")
-      .then((res) =>
-        res.ok ? res.json() : Promise.reject("Serviço indisponível.")
-      )
-      .then((data) => setIngredientes(data))
-      .catch((err) => setError(err.toString()));
-  }, []);
-
-  // --- FUNÇÃO PARA MONTAR O CAFÉ ---
-  const montarCafe = useCallback(() => {
-    if (selectedBaseIds.size === 0) {
-      setCafeFinal(null);
-      return;
-    }
-    setIsLoading(true);
-    setError("");
-    const requestBody = {
-      idsIngredientesBase: Array.from(selectedBaseIds),
-      idsIngredientesAdicionais: Array.from(selectedAdicionalIds),
-    };
-    fetch("/api/cafeteria/montar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestBody),
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText || "Erro na montagem.");
-        }
-        return res.json();
-      })
-      .then((data) => setCafeFinal(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setIsLoading(false));
-  }, [selectedBaseIds, selectedAdicionalIds]);
-
-  // Efeito para atualizar o resumo dinamicamente
-  useEffect(() => {
-    montarCafe();
+    montarCafe(Array.from(selectedBaseIds), Array.from(selectedAdicionalIds));
   }, [selectedBaseIds, selectedAdicionalIds, montarCafe]);
 
   // --- FUNÇÕES DE MANIPULAÇÃO DE EVENTOS ---
@@ -121,15 +68,12 @@ function App() {
     setEtapa("BASE");
     setSelectedBaseIds(new Set());
     setSelectedAdicionalIds(new Set());
-    setCafeFinal(null);
     setError("");
   };
 
   // --- RENDERIZAÇÃO ---
   const ingredientesBase = ingredientes.filter((i) => i.tipo === "BASE");
-  const ingredientesAdicionais = ingredientes.filter(
-    (i) => i.tipo === "ADICIONAL"
-  );
+  const ingredientesAdicionais = ingredientes.filter((i) => i.tipo === "ADICIONAL");
 
   const getStepClass = (stepName: Etapa) => {
     if (etapa === "SUCESSO") return "completed";
