@@ -1,6 +1,6 @@
 # Projeto Cafeteria - Desafio Prático QA
 
-Este repositório contém a solução para o desafio prático do Processo Seletivo **01517/2025 - Analista de Qualidade Software - Pleno**: O projeto consiste em uma aplicação web de autoatendimento que permite a clientes de uma cafeteria personalizarem suas bebidas, selecionando ingredientes e recebendo um resumo dinâmico da sua criação
+Este repositório contém a solução para o desafio prático  - Analista de Qualidade Software - Pleno: O projeto consiste em uma aplicação web de autoatendimento que permite a clientes de uma cafeteria personalizarem suas bebidas, selecionando ingredientes e recebendo um resumo dinâmico da sua criação
 
 ---
 
@@ -14,7 +14,7 @@ Este repositório contém a solução para o desafio prático do Processo Seleti
 
 1.  Clone este repositório para sua máquina local:
     ```bash
-    git clone https://github.com/SENAI-SD/qa-pleno-01517-2025-087.420.254-00.git
+    git clone 
     ```
 2.  Navegue até a pasta raiz do projeto clonado.
 
